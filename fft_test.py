@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.fftpack import fft,ifft
 import time
 
 
@@ -88,14 +89,20 @@ def timeit(tgt_func, msg = '', rpt = 1):
 x = np.linspace(0.0, N*T, N)
 y = 0.1*np.sin(50 * 2.0*np.pi*x) + 0.7*np.sin(110 * 2.0*np.pi*x) + 0.3*np.sin(470 * 2.0*np.pi*x)
 
+#ToCompare
+newyf=fft(y)
+newrec=ifft(newyf)
+
 yf = FFT(y)
 xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
 rec = IFFT(yf)
 
-fig, ax = plt.subplots(3)
+fig, ax = plt.subplots(5)
 ax[0].plot(x, y)
-ax[1].plot(xf, 2.0/N * np.abs(yf[:N//2]))
-ax[2].plot(x, 2.0/N * np.abs(rec))
+ax[1].plot(xf, np.abs(newyf[:N//2]))
+ax[2].plot(xf, np.abs(yf[:N//2]))
+ax[3].plot(x, rec.real)
+ax[4].plot(x, newrec.real)
 plt.show()
 
 timeit(lambda: FFT(y), 'FFT', 10)
