@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import numpy as np
-from scipy.fftpack import fft,ifft
+from scipy.fftpack import fft,ifft,fft2,ifft2,fftshift
 import time
-
+import cv2
 import math
 
 class Polynomial:
-
     def __init__(self, coeficents, degrees=None):
         if not degrees:
             self.degree = list(reversed(range(len(coeficents))))
@@ -24,7 +24,7 @@ b = Polynomial([1,-2,1], [2,1,0])
 
 _PI = np.math.pi
 # Number of sample points
-N = 1024
+N = 1024**2
 # sample spacing
 T = 1 / N
 
@@ -48,7 +48,7 @@ def FFT_recu(x, inverse : bool = False):
     # as recursion on small N does not help much
     # rather do in in one N^2 call.
     elif N <= 16:
-        return DFT_slow(x, True)/N if inverse else DFT_slow(x, False)
+        return DFT_slow(x, inverse)
 
     tmp_PI = -_PI if inverse else _PI
     w = np.exp(-2j * tmp_PI / N * np.arange(N))
@@ -66,12 +66,11 @@ def FFT_iter(x, inverse : bool= False):
 
     if (N & (N - 1)):
         raise ValueError("size of x must be a power of 2")
-
-    # N_min here is equivalent to the stopping condition above,
-    # and should be a power of 2
+    # this cutoff should be optimized
+    # as recursion on small N does not help much
+    # rather do in in one N^2 call.
     N_min = min(N, 16)
-    
-    # Perform an O[N^2] DFT on all length-N_min sub-problems at once
+
     n = np.arange(N_min)
     k = n[:, None]
     M = np.exp(-2j * tmp_PI * n * k / N_min)
@@ -93,14 +92,37 @@ def timeit(tgt_func, msg = '', rpt = 1):
     stop = time.time()
     print(f'{msg}\n>avg {(stop - start)*1000/rpt : 8.3f} ms per loop')
 
-x = np.linspace(0.0, N*T, N)
-y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
+def rgb2gray(rgb):
+    return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
 
+def img_transform(data, inverse : bool= False):
+    tmp = map(lambda x: FFT_iter(x), data)
+    print(tmp)
+    return data
+
+
+#x = np.linspace(0.0, N*T, N)
+#y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
+fig, ax = plt.subplots(3)
+
+img = mpimg.imread('./ripple.png')
+img = rgb2gray(img)
+
+ax[0].imshow(img, cmap=plt.get_cmap('gray'))
+
+imgf = fft2(img)
+ax[1].imshow(np.abs(fftshift(imgf)), cmap=plt.get_cmap('gray'))
+
+rec = ifft2(imgf)
+ax[2].imshow(np.abs(rec), cmap=plt.get_cmap('gray'))
+
+plt.show()
+'''
 xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
 yf = FFT_iter(y, False)
 rec = FFT_iter(yf, True)/N
 
-#ToCompare
+#To Compare
 newyf=fft(y)
 newrec=ifft(newyf)
 
@@ -116,6 +138,10 @@ ax[3].plot(x, rec.real)
 ax[4].plot(x, newrec.real)
 plt.show()
 
-timeit(lambda: DFT_slow(y), 'DFT_slow', 5)
+# performance benchmark
+if N < 2048:
+    timeit(lambda: DFT_slow(y), 'DFT_slow', 5)
+else: print("DFT_slow\n>avg    >1000 ms per loop")
 timeit(lambda: FFT_recu(y), 'FFT_recu', 10)
 timeit(lambda: FFT_iter(y), 'FFT_iter', 10)
+'''
