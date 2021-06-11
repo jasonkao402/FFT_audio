@@ -106,15 +106,15 @@ def img_transform(data, inverse : bool= False):
 fig, ax = plt.subplots(3)
 
 img = mpimg.imread('./ripple.png')
-img = rgb2gray(img)
+#img = rgb2gray(img)
 
-ax[0].imshow(img, cmap=plt.get_cmap('gray'))
+ax[0].imshow(img)
 
 imgf = fft2(img)
-ax[1].imshow(np.abs(fftshift(imgf)), cmap=plt.get_cmap('gray'))
+ax[1].imshow(np.abs(fftshift(imgf)))
 
 rec = ifft2(imgf)
-ax[2].imshow(np.abs(rec), cmap=plt.get_cmap('gray'))
+ax[2].imshow(np.abs(rec))
 
 plt.show()
 '''
