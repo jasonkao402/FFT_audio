@@ -92,7 +92,7 @@ def FFT_iter(x, inverse: bool = False):
 
 
 def ImgFFTYuki(img):
-    x = np.zeros((img.shape[0], img.shape[1]))
+    x = np.zeros((img.shape[0], img.shape[1]), dtype=complex)
     for i in range(img.shape[0]):
         x[i] = (FFT_iter(img[i, 0:img.shape[1]]))
     for i in range(x.shape[1]):
