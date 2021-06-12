@@ -100,13 +100,13 @@ def ImgFFTYuki(img):
     return x
 
 
-def ImgFFTYukiv2(img):
+def ImgFFTYukiv2(img, inverse: bool = False):
     x = np.zeros((img.shape[0], img.shape[1]), dtype=complex)
     for i, row in enumerate(img):
-        x[i] = FFT_iter(row)
+        x[i] = FFT_iter(row, inverse)
     x = x.T
     for i, col in enumerate(x):
-        x[i] = FFT_iter(col)
+        x[i] = FFT_iter(col, inverse)
     return x.T
 
 
@@ -129,21 +129,21 @@ def timeit(tgt_func, msg='', rpt=1):
 
 def rgb2gray(rgb):
     bw = np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140])
-    return cv2.resize(bw, (1024, 1024), interpolation=cv2.INTER_LINEAR)
+    return cv2.resize(bw, (256, 256), interpolation=cv2.INTER_LINEAR)
 
 
 def FFT_col(data):
     ESP = np.nextafter(np.float32(0), np.float32(1))
-    return np.log(ESP + np.abs(fftshift(data)))
+    return 20*np.log(ESP + np.abs(fftshift(data)))
 
 
-# x = np.linspace(0.0, N*T, N)
-# y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
 fig, ax = plt.subplots(5, 3)
 
 # img = mpimg.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/squares.png')
-img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/shape.png')
+# img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/shape.png')
+img = cv2.imread('./checker.png')
 # img = rgb2gray(img)
+img = cv2.resize(img, (256, 256))
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 _BGR = ['Blues', 'Greens', 'Reds']
 
@@ -165,6 +165,8 @@ for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
     # print(i, col_ary, col_name)
     colf = np.fft.fft2(col_ary)
     colyukif = ImgFFTYukiv2(col_ary)
+    ax[2, i].name = col_name
+    ax[3, i].name = col_name
     ax[2, i].imshow(FFT_col(colf), cmap=col_name)
     ax[3, i].imshow(FFT_col(colyukif), cmap=col_name)
 
@@ -179,18 +181,29 @@ mergesci = np.dstack((bfsci, gfsci, rfsci))
 print(np.allclose(mergesci, merge))
 
 imgfft2 = (fft2(img))
-ax[4, 0].imshow((FFT_col(merge)*255).astype(np.uint8))
-ax[4, 1].imshow((FFT_col(imgfft2)*255).astype(np.uint8))
+print(merge.shape, imgfft2.shape, merge.dtype, imgfft2.dtype,  sep='\n')
+#merge = np.asarray(merge, dtype=float)
+#imgfft2 = np.asarray(imgfft2, dtype=float)
+merge = rgb2gray(merge.astype(np.uint8))
+imgfft2 = rgb2gray(imgfft2.astype(np.uint8))
+ax[4, 0].imshow(merge, cmap = 'gray')
+ax[4, 1].imshow(imgfft2, cmap = 'gray')
 #ax[4, 2].imshow((ifft2(fft2(img)).real))
 
 # merge_if = ifft2(merge_f)
 plt.show()
+
 '''
+# performance benchmark
 timeit(lambda: ImgFFTJason(img), 'ImgFFTJason', 3)
 timeit(lambda: ImgFFTYuki(img), 'ImgFFTYuki', 3)
 timeit(lambda: ImgFFTYukiv2(img), 'ImgFFTYukiv2', 3)
 '''
+
 '''
+# 1D FFT, complete
+# x = np.linspace(0.0, N*T, N)
+# y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
 xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
 yf = FFT_iter(y, False)
 rec = FFT_iter(yf, True)/N
