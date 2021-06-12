@@ -23,6 +23,10 @@ a = Polynomial([1, 2,1], [2,1,0])
 b = Polynomial([1,-2,1], [2,1,0])
 
 _PI = np.math.pi
+# Number of sample points
+N = 1024**2
+# sample spacing
+T = 1 / N
 
 def DFT_slow(x, inverse : bool = False):
     """discrete Fourier Transform of the 1D array x"""
@@ -89,61 +93,31 @@ def timeit(tgt_func, msg = '', rpt = 1):
     print(f'{msg}\n>avg {(stop - start)*1000/rpt : 8.3f} ms per loop')
 
 def rgb2gray(rgb):
-    bw = np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
-    return cv2.resize(bw, (1024, 1024), interpolation=cv2.INTER_CUBIC)
-
-
+    return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
 
 def img_transform(data, inverse : bool= False):
-    fig, ax = plt.subplots(5)
-
-    tmp = np.array(list(map(lambda row: FFT_iter(row), data)), dtype=complex)
-    tmp=tmp.T
-
-    showtmp = fftshift(tmp)
-    ax[0].imshow(showtmp.real, cmap=plt.get_cmap('gray'))#, vmin = 0, vmax = 16)
-    ax[1].imshow(showtmp.imag, cmap=plt.get_cmap('gray'))#, vmin = 0, vmax = 16)
-
-    tmp = np.array(list(map(lambda col: FFT_iter(col), data)), dtype=complex)
-    tmp=tmp.T
-
-    
-    showtmp = fftshift(tmp)
-    ax[2].imshow(showtmp.real, cmap=plt.get_cmap('gray'))#, vmin = 0, vmax = 16)
-    ax[3].imshow(showtmp.imag, cmap=plt.get_cmap('gray'))#, vmin = 0, vmax = 16)
-    ax[4].imshow(np.abs(showtmp), cmap=plt.get_cmap('gray'))#, vmin = 0, vmax = 16)
-    #print(tmp)
+    tmp = map(lambda x: FFT_iter(x), data)
+    print(tmp)
     return data
 
 
-fig, ax = plt.subplots(4)
+#x = np.linspace(0.0, N*T, N)
+#y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
+fig, ax = plt.subplots(3)
 
 img = mpimg.imread('./ripple.png')
-#print(img.shape)
-img = rgb2gray(img)
-#print(img.shape)
-test = img_transform(img)
-# Number of sample points
-N = 1024
-# sample spacing
-T = 1 / N
+#img = rgb2gray(img)
 
-x = np.linspace(0.0, 1.0, img.shape[0])
-y = img[400]
-#x = np.linspace(0.0, 1.0, N)
-#y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
-
-ax[0].imshow(img, cmap=plt.cm.binary)
+ax[0].imshow(img)
 
 imgf = fft2(img)
-print(imgf.shape)
-ax[1].imshow((fftshift(imgf)).real, cmap=plt.get_cmap('gray'), vmin = 0, vmax = 512)
-ax[2].imshow((fftshift(imgf)).imag, cmap=plt.get_cmap('gray'), vmin = 0, vmax = 512)
+ax[1].imshow(np.abs(fftshift(imgf)))
 
 rec = ifft2(imgf)
-ax[3].imshow(np.abs(rec), cmap=plt.cm.binary)
-plt.show()
+ax[2].imshow(np.abs(rec))
 
+plt.show()
+'''
 xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
 yf = FFT_iter(y, False)
 rec = FFT_iter(yf, True)/N
@@ -155,13 +129,13 @@ newrec=ifft(newyf)
 print(np.allclose(yf, newyf))
 print(np.allclose(rec, newrec))
 
-fig, ax1d = plt.subplots(5)
+fig, ax = plt.subplots(5)
 
-ax1d[0].plot(x, y)
-ax1d[1].plot(xf, np.abs(newyf[:N//2]))
-ax1d[2].plot(xf, np.abs(yf[:N//2]))
-ax1d[3].plot(x, rec.real)
-ax1d[4].plot(x, newrec.real)
+ax[0].plot(x, y)
+ax[1].plot(xf, np.abs(newyf[:N//2]))
+ax[2].plot(xf, np.abs(yf[:N//2]))
+ax[3].plot(x, rec.real)
+ax[4].plot(x, newrec.real)
 plt.show()
 
 # performance benchmark
@@ -170,3 +144,4 @@ if N < 2048:
 else: print("DFT_slow\n>avg    >1000 ms per loop")
 timeit(lambda: FFT_recu(y), 'FFT_recu', 10)
 timeit(lambda: FFT_iter(y), 'FFT_iter', 10)
+'''
