@@ -113,8 +113,9 @@ def getHighMask(img_size:tuple, masksize_high):
     img_center = (img_size[0]>>1, img_size[1]>>1)
 
     mask_high = np.zeros(img_size, dtype=np.uint8)
+    mask_high.fill(1)
     mask_high[img_center[0]-masksize_high : img_center[0]+masksize_high,
-             img_center[1]-masksize_high : img_center[1]+masksize_high] = 1
+             img_center[1]-masksize_high : img_center[1]+masksize_high] = 0
     return mask_high
 
 
@@ -122,12 +123,34 @@ def getHighRGBMask(img_size:tuple, masksize_high):
     img_center = (img_size[0]>>1, img_size[1]>>1)
 
     mask_highRGB = np.zeros((img_size[0], img_size[1], 3), dtype=np.uint8)
+    mask_high.fill(1)
     mask_highRGB[img_center[0]-masksize_high : img_center[0]+masksize_high,
-                img_center[1]-masksize_high : img_center[1]+masksize_high] = 1
+                img_center[1]-masksize_high : img_center[1]+masksize_high] = 0
     return mask_highRGB
 
+
+def yuki_shift(data):
+    row = data.shape[0]
+    col = data.shape[1]
+    data[0:int(row/2)] = data[int(row/2):row]
+    data[0:int(col/2)] = data[int(col/2):col]
+    return data
+
+
+def yuki_ishift(data):
+    row = data.shape[0]
+    col = data.shape[1]
+    data[0:int(row/2)] = data[int(row/2):row]
+    data[0:int(col/2)] = data[int(col/2):col]
+    return data
 '''
 # 1D FFT, complete
+
+# Number of sample points
+N = 1024
+# sample spacing
+T = 1 / N
+
 # x = np.linspace(0.0, N*T, N)
 # y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
 xf = np.linspace(0.0, 1.0/(2.0*T), N//2)

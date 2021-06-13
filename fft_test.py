@@ -3,21 +3,17 @@ import matplotlib.image as mpimg
 import numpy as np
 from fft_func import *
 from util_func import *
-from scipy.fftpack import fft2, ifft2, fftshift, ifftshift
+from scipy.fftpack import fft2, ifft2
 import cv2
 
 IMG_SIZE = (256, 256)
-# Number of sample points
-N = 1024
-# sample spacing
-T = 1 / N
 
 fig, ax = plt.subplots(4, 5)
-
-# img = mpimg.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/squares.png')
-# img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/A6gibnM.jpg')
-img = cv2.imread('./checker.png')
-# img = cv2.imread('./A6gibnM.jpg')
+SRC = 'wave.png'
+#lol no need to change this anymore
+img = cv2.imread('./'+SRC)
+if not img.any():
+    img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/'+SRC)
 
 img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 _BGR = ['Blues', 'Greens', 'Reds']
@@ -64,10 +60,12 @@ for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
 mergesci = np.dstack(scif)
 mergesci_col = FFT_col(mergesci)
 
+mask = getLowMask(IMG_SIZE, 150)
+maskRGB = getLowRGBMask(IMG_SIZE, 150)
 
-Rmask = ifftshift(fftshift(colif[2])*mask_high)
-Gmask = ifftshift(fftshift(colif[1])*mask_high)
-Bmask = ifftshift(fftshift(colif[0])*mask_high)
+Rmask = ifftshift(fftshift(colif[2]) * mask)
+Gmask = ifftshift(fftshift(colif[1]) * mask)
+Bmask = ifftshift(fftshift(colif[0]) * mask)
 Rmaskif = ImgFFTYukiv2(Rmask, 1)
 Gmaskif = ImgFFTYukiv2(Gmask, 1)
 Bmaskif = ImgFFTYukiv2(Bmask, 1)
@@ -82,11 +80,13 @@ ax[0, 4].imshow(merge_col.astype(np.uint8))
 ax[1, 4].imshow(mergesci_col.astype(np.uint8))
 ax[2, 4].imshow(np.abs(merge_if).astype(np.uint8))
 
-ax[3, 0].imshow((FFT_col(merge)*mask_highRGB).astype(np.uint8))
+
+ax[3, 0].imshow((FFT_col(merge) * maskRGB).astype(np.uint8))
 ax[3, 1].imshow(np.abs(Rmaskif).astype(np.uint8), cmap='Reds')
 ax[3, 2].imshow(np.abs(Gmaskif).astype(np.uint8), cmap='Greens')
 ax[3, 3].imshow(np.abs(Bmaskif).astype(np.uint8), cmap='Blues')
 ax[3, 4].imshow(np.abs(merge_mask).astype(np.uint8))
+
 plt.show()
 '''
 out = np.abs(merge_if).astype(np.uint8)

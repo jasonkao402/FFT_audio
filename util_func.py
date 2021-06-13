@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 import time
-from scipy.fftpack import fftshift
+from fft_func import yuki_shift as fftshift, yuki_ishift as ifftshift
+#from scipy.fftpack import fftshift, ifftshift
 
 def timeit(tgt_func, msg='', rpt=1):
     t = 0
