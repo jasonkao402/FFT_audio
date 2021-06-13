@@ -1,4 +1,3 @@
-from math import ceil
 import numpy as np
 
 _PI = np.math.pi
@@ -92,26 +91,6 @@ def ImgFFTJason(data, inverse: bool = False):
     tmp = np.array(list(map(lambda col: FFT_iter(col), tmp)), dtype=complex)
     tmp = tmp.T
     return tmp
-
-
-def getMask(img_size: tuple, masksize, ishigh: bool):
-    img_center = (img_size[0] >> 1, img_size[1] >> 1)
-    not_high = not ishigh
-    mask = np.zeros(img_size, dtype=np.uint8)
-    mask.fill(not_high)
-    mask[img_center[0]-masksize: img_center[0]+masksize,
-         img_center[1]-masksize: img_center[1]+masksize] = ishigh
-    return mask
-
-
-def getMaskRGB(img_size: tuple, masksize_low, ishigh: bool):
-    img_center = (img_size[0] >> 1, img_size[1] >> 1)
-    not_high = not ishigh
-    maskRGB = np.zeros((img_size[0], img_size[1], 3), dtype=np.uint8)
-    maskRGB.fill(not_high)
-    maskRGB[img_center[0]-masksize_low: img_center[0]+masksize_low,
-            img_center[1]-masksize_low: img_center[1]+masksize_low] = ishigh
-    return maskRGB
 
 
 def yuki_shift(data):

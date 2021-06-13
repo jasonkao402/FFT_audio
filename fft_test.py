@@ -7,12 +7,14 @@ from scipy.fftpack import fft2, ifft2
 import cv2
 
 IMG_SIZE = (256, 256)
-MASK_SIZE = 100
-# LowPASS:1 HighPass:0
+MASK_SIZE = 10
+# LowPASS:1 HighPass:0 
 MASK_MODE = 1
+# square: 's', circle: 'c', NoFilter: ''
+MASK_SHAPE = ''
 
 fig, ax = plt.subplots(4, 6)
-SRC = 'SmallAme.jpg'
+SRC = 'wave.png'
 # lol no need to change this anymore
 try:
     img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/'+SRC)
@@ -37,9 +39,9 @@ ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 my_info = prepare_freq_info(IMG_SIZE, 'password')
 ixi = ImgFFTYukiv2(my_info, 1)
 
-mask = getMask(IMG_SIZE, MASK_SIZE, MASK_MODE)
+mask = getMask(IMG_SIZE, MASK_SIZE, MASK_MODE, MASK_SHAPE)
 #+ getMask(IMG_SIZE, 80, 0)
-maskRGB = getMaskRGB(IMG_SIZE, MASK_SIZE, MASK_MODE)
+maskRGB = getMaskRGB(IMG_SIZE, MASK_SIZE, MASK_MODE, MASK_SHAPE)
 #+ getMaskRGB(IMG_SIZE, 80, 0)
 # print(mask)
 
