@@ -8,7 +8,7 @@ import cv2
 
 IMG_SIZE = (256, 256)
 
-fig, ax = plt.subplots(4, 5)
+fig, ax = plt.subplots(4, 6)
 SRC = 'wave.png'
 #lol no need to change this anymore
 img = cv2.imread('./'+SRC)
@@ -41,7 +41,7 @@ colif = [0,0,0]
 
 for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
 
-    colf[i] = ImgFFTYukiv2(col_ary + ixi)
+    colf[i] = ImgFFTYukiv2(col_ary)
     colif[i] = ImgFFTYukiv2(colf[i], 1)
     ax[i, 2].imshow(FFT_col(colf[i]), cmap=col_name)
     ax[i, 3].imshow(np.abs(colif[i]), cmap=col_name)
@@ -60,8 +60,8 @@ for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
 mergesci = np.dstack(scif)
 mergesci_col = FFT_col(mergesci)
 
-mask = getLowMask(IMG_SIZE, 64)
-maskRGB = getLowRGBMask(IMG_SIZE, 64)
+mask = getMask(IMG_SIZE, 100, 1) + getMask(IMG_SIZE, 80, 0)
+maskRGB = getMaskRGB(IMG_SIZE, 100, 1) + getMaskRGB(IMG_SIZE, 80, 0)
 
 Rmask = ifftshift(fftshift(colif[2]) * mask)
 Gmask = ifftshift(fftshift(colif[1]) * mask)
