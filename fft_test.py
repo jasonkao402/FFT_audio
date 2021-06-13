@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
-from scipy.fftpack import fft, ifft, fft2, ifft2, fftshift
+from scipy.fftpack import fft2, ifft2, fftshift, ifftshift
 import time
 import cv2
 import math
@@ -142,15 +142,37 @@ def FFT_col(data):
     return 20*np.log(ESP + np.abs(fftshift(data)))
 
 
-fig, ax = plt.subplots(3, 5)
+fig, ax = plt.subplots(4, 5)
 
 # img = mpimg.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/squares.png')
-# img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/A6gibnM.jpg')
+img = cv2.imread(
+    'C:/Users/yukimura/Documents/Workplace/FFT_audio/SmallAme.jpg')
 # img = cv2.imread('./checker.png')
-img = cv2.imread('./wave.png')
+# img = cv2.imread('./wave.png')
 
 img = cv2.cvtColor(cv2.resize(img, (512, 512)), cv2.COLOR_BGR2RGB)
 _BGR = ['Blues', 'Greens', 'Reds']
+
+
+masksize_low = 150
+mask_low = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+mask_low[256-masksize_low:256+masksize_low,
+         256-masksize_low:256+masksize_low] = 1
+
+mask_lowRGB = np.zeros(
+    (img.shape[0], img.shape[1], img.shape[2]), dtype=np.uint8)
+mask_lowRGB[256-masksize_low:256+masksize_low,
+            256-masksize_low:256+masksize_low] = 1
+
+masksize_high = 10
+mask_high = np.ones((img.shape[0], img.shape[1]), dtype=np.uint8)
+mask_high[256-masksize_high:256+masksize_high,
+          256-masksize_high:256+masksize_high] = 0
+
+mask_highRGB = np.ones(
+    (img.shape[0], img.shape[1], img.shape[2]), dtype=np.uint8)
+mask_highRGB[256-masksize_high:256+masksize_high,
+             256-masksize_high:256+masksize_high] = 0
 
 imgf = fft2(rgb2gray(img))
 imgyuki = ImgFFTYukiv2(rgb2gray(img))
@@ -189,20 +211,33 @@ rifsci = ifft2(rfsci)
 
 merge = np.dstack((bf, gf, rf))
 mergesci = np.dstack((bfsci, gfsci, rfsci))
-print(np.allclose(mergesci, merge))
+merge_col = FFT_col(merge)
+mergesci_col = FFT_col(mergesci)
 
+Rmask = ifftshift(fftshift(rf)*mask_high)
+Gmask = ifftshift(fftshift(gf)*mask_high)
+Bmask = ifftshift(fftshift(bf)*mask_high)
+Rmaskif = ImgFFTYukiv2(Rmask, 1)
+Gmaskif = ImgFFTYukiv2(Gmask, 1)
+Bmaskif = ImgFFTYukiv2(Bmask, 1)
+merge_mask = np.dstack((Rmaskif, Gmaskif, Bmaskif))
+
+print(np.allclose(mergesci, merge))
 merge_if = np.dstack((rif, gif, bif))
 merge_ifsci = np.dstack((rifsci, gifsci, rifsci))
 print(merge.shape, merge.dtype,  sep='\n')
 
-merge_col = FFT_col(merge)
-mergesci_col = FFT_col(mergesci)
 # merge = rgb2gray(FFT_col(merge).astype(np.uint8))
 # imgfft2 = rgb2gray(imgfft2.astype(np.uint8))~
 ax[0, 4].imshow(merge_col.astype(np.uint8))
 ax[1, 4].imshow((mergesci_col).astype(np.uint8))
 ax[2, 4].imshow(np.abs(merge_if).astype(np.uint8))
 
+ax[3, 0].imshow((FFT_col(merge)*mask_highRGB).astype(np.uint8))
+ax[3, 1].imshow(np.abs(Rmaskif).astype(np.uint8), cmap='Reds')
+ax[3, 2].imshow(np.abs(Gmaskif).astype(np.uint8), cmap='Greens')
+ax[3, 3].imshow(np.abs(Bmaskif).astype(np.uint8), cmap='Blues')
+ax[3, 4].imshow(np.abs(merge_mask).astype(np.uint8))
 plt.show()
 
 '''
