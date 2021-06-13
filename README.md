@@ -10,6 +10,8 @@ We picked shapes that have distinct patterns after FT.
 ## FFT on water and ripple
 FFT filter used as blur effect.
 ![FFTshapes](https://cdn.discordapp.com/attachments/710883949819199549/853677883704999966/unknown.png)
+## FFT filter on simple shapes
+![FFTFilter](https://cdn.discordapp.com/attachments/844407581719789598/853682931411189780/unknown.png)
 
 ## FFT on chibi Ame
 Why not(?

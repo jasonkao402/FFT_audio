@@ -1,23 +1,24 @@
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import numpy as np
+import cv2
+# our library
 from fft_func import *
 from util_func import *
+# check answer
 from scipy.fftpack import fft2, ifft2
-import cv2
 
 IMG_SIZE = (256, 256)
 MASK_SIZE = 10
 # LowPASS:1 HighPass:0 
-MASK_MODE = 1
+MASK_MODE = 0
 # square: 's', circle: 'c', NoFilter: ''
-MASK_SHAPE = ''
+MASK_SHAPE = 'c'
 
 fig, ax = plt.subplots(4, 6)
-SRC = 'wave.png'
+SRC = 'shape.png'
 # lol no need to change this anymore
 try:
-    img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/'+SRC)
+    img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_image/'+SRC)
     img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 except:
     img = cv2.imread('./'+SRC)
