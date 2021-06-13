@@ -140,10 +140,10 @@ def FFT_col(data):
 fig, ax = plt.subplots(5, 3)
 
 # img = mpimg.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/squares.png')
-# img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/shape.png')
-img = cv2.imread('./checker.png')
+img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/shape.png')
+# img = cv2.imread('./checker.png')
 # img = rgb2gray(img)
-img = cv2.resize(img, (256, 256))
+#img = cv2.resize(img, (256, 256))
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 _BGR = ['Blues', 'Greens', 'Reds']
 
@@ -180,17 +180,22 @@ merge = np.dstack((bf, gf, rf))
 mergesci = np.dstack((bfsci, gfsci, rfsci))
 print(np.allclose(mergesci, merge))
 
+bif = ImgFFTYukiv2(bf, 1)
+gif = ImgFFTYukiv2(gf, 1)
+rif = ImgFFTYukiv2(rf, 1)
+
+merge_if = np.dstack((rif, gif, bif))
+
 imgfft2 = (fft2(img))
 print(merge.shape, imgfft2.shape, merge.dtype, imgfft2.dtype,  sep='\n')
-#merge = np.asarray(merge, dtype=float)
-#imgfft2 = np.asarray(imgfft2, dtype=float)
-merge = rgb2gray(merge.astype(np.uint8))
-imgfft2 = rgb2gray(imgfft2.astype(np.uint8))
-ax[4, 0].imshow(merge, cmap = 'gray')
-ax[4, 1].imshow(imgfft2, cmap = 'gray')
-#ax[4, 2].imshow((ifft2(fft2(img)).real))
+merge_col = np.asarray(FFT_col(merge), dtype=float)
+imgfft2_col = np.asarray(FFT_col(imgfft2), dtype=float)
+# merge = rgb2gray(FFT_col(merge).astype(np.uint8))
+# imgfft2 = rgb2gray(imgfft2.astype(np.uint8))~
+ax[4, 0].imshow(merge_col.astype(np.uint8))
+ax[4, 1].imshow(imgfft2_col.astype(np.uint8))
+ax[4, 2].imshow(np.abs(merge_if).astype(np.uint8))
 
-# merge_if = ifft2(merge_f)
 plt.show()
 
 '''
