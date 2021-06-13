@@ -123,7 +123,7 @@ def getHighRGBMask(img_size:tuple, masksize_high):
     img_center = (img_size[0]>>1, img_size[1]>>1)
 
     mask_highRGB = np.zeros((img_size[0], img_size[1], 3), dtype=np.uint8)
-    mask_high.fill(1)
+    mask_highRGB.fill(1)
     mask_highRGB[img_center[0]-masksize_high : img_center[0]+masksize_high,
                 img_center[1]-masksize_high : img_center[1]+masksize_high] = 0
     return mask_highRGB

@@ -33,7 +33,7 @@ ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
     ax[i, 1].imshow(col_ary, cmap=col_name)
 
-my_info = prepare_freq_info(IMG_SIZE, 'password', 256)
+my_info = prepare_freq_info(IMG_SIZE, 'password')
 ixi = ImgFFTYukiv2(my_info, 1)
 
 colf = [0,0,0]
@@ -60,8 +60,8 @@ for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
 mergesci = np.dstack(scif)
 mergesci_col = FFT_col(mergesci)
 
-mask = getLowMask(IMG_SIZE, 150)
-maskRGB = getLowRGBMask(IMG_SIZE, 150)
+mask = getLowMask(IMG_SIZE, 64)
+maskRGB = getLowRGBMask(IMG_SIZE, 64)
 
 Rmask = ifftshift(fftshift(colif[2]) * mask)
 Gmask = ifftshift(fftshift(colif[1]) * mask)

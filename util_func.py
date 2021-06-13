@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 import time
-from fft_func import yuki_shift as fftshift, yuki_ishift as ifftshift
-#from scipy.fftpack import fftshift, ifftshift
+#from fft_func import yuki_shift as fftshift, yuki_ishift as ifftshift
+from scipy.fftpack import fftshift, ifftshift
 
 def timeit(tgt_func, msg='', rpt=1):
     t = 0
@@ -18,15 +18,12 @@ def rgb2gray(rgb, IMG_SIZE:tuple = (256, 256)):
     return cv2.resize(bw, IMG_SIZE, interpolation=cv2.INTER_LINEAR)
 
 
-def FFT_col(data, shift:bool = True):
+def FFT_col(data):
     ESP = np.nextafter(np.float32(0), np.float32(1))
-    if shift:
-        return 20*np.log(ESP + np.abs(fftshift(data)))
-    else:
-        return 20*np.log(ESP + np.abs(data))
+    return 20*np.log(ESP + np.abs(fftshift(data)))
 
 def prepare_freq_info(IMG_SIZE:tuple = (256, 256), msg:str = '', power:float = 99999):
     info = np.empty(IMG_SIZE, dtype=np.float64)
-    cv2.putText(info, str(msg), (100,200), cv2.FONT_HERSHEY_DUPLEX, 2, power, 4)
+    cv2.putText(info, str(msg), (100,200), cv2.FONT_HERSHEY_DUPLEX, 1, power, 2)
     info += np.rot90(info, 2)
     return info
