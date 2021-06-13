@@ -25,8 +25,9 @@ a = Polynomial([1, 2, 1], [2, 1, 0])
 b = Polynomial([1, -2, 1], [2, 1, 0])
 
 _PI = np.math.pi
+IMG_SIZE = (512, 512)
 # Number of sample points
-N = 1024**2
+N = 1024
 # sample spacing
 T = 1 / N
 
@@ -102,8 +103,6 @@ def ImgFFTYuki(img):
 
 def ImgFFTYukiv2(img, inverse: bool = False):
     x = np.zeros((img.shape[0], img.shape[1]), dtype=complex)
-    if(inverse):
-        img = img.T
 
     for i, row in enumerate(img):
         x[i] = FFT_iter(row, inverse)
@@ -112,7 +111,7 @@ def ImgFFTYukiv2(img, inverse: bool = False):
     for i, col in enumerate(x):
         x[i] = FFT_iter(col, inverse)
 
-    return x if inverse else x.T
+    return x.T
 
 
 def ImgFFTJason(data, inverse: bool = False):
@@ -134,23 +133,27 @@ def timeit(tgt_func, msg='', rpt=1):
 
 def rgb2gray(rgb):
     bw = np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140])
-    return cv2.resize(bw, (256, 256), interpolation=cv2.INTER_LINEAR)
+    return cv2.resize(bw, IMG_SIZE, interpolation=cv2.INTER_LINEAR)
 
 
 def FFT_col(data):
     ESP = np.nextafter(np.float32(0), np.float32(1))
     return 20*np.log(ESP + np.abs(fftshift(data)))
 
+def prepare_freq_info(msg:str = '', power:float = 99999):
+    info = np.empty(IMG_SIZE, dtype=np.float64)
+    cv2.putText(info, str(msg), (100,200), cv2.FONT_HERSHEY_DUPLEX, 2, power, 4)
+    info += np.rot90(info, 2)
+    return info
 
 fig, ax = plt.subplots(4, 5)
 
 # img = mpimg.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/squares.png')
-img = cv2.imread(
-    'C:/Users/yukimura/Documents/Workplace/FFT_audio/SmallAme.jpg')
-# img = cv2.imread('./checker.png')
-# img = cv2.imread('./wave.png')
+# img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/A6gibnM.jpg')
+img = cv2.imread('./checker.png')
+# img = cv2.imread('./A6gibnM.jpg')
 
-img = cv2.cvtColor(cv2.resize(img, (512, 512)), cv2.COLOR_BGR2RGB)
+img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 _BGR = ['Blues', 'Greens', 'Reds']
 
 
@@ -187,20 +190,19 @@ ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
     ax[i, 1].imshow(col_ary, cmap=col_name)
 
+colf = [0,0,0]
+colif = [0,0,0]
+my_info = prepare_freq_info('password')
+ixi = ImgFFTYukiv2(my_info, 1)
+#cv2.imshow('', np.abs(ixi))
 
 for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
-    # print(i, col_ary, col_name)
-    colf = np.fft.fft2(col_ary)
-    colyukif = ImgFFTYukiv2(col_ary)
-    ax[i, 2].imshow(FFT_col(colf), cmap=col_name)
-    ax[i, 3].imshow(FFT_col(colyukif), cmap=col_name)
 
-bf = ImgFFTYukiv2(B)
-gf = ImgFFTYukiv2(G)
-rf = ImgFFTYukiv2(R)
-bif = ImgFFTYukiv2(bf, 1)
-gif = ImgFFTYukiv2(gf, 1)
-rif = ImgFFTYukiv2(rf, 1)
+    colf[i] = ImgFFTYukiv2(col_ary + ixi)
+    colif[i] = ImgFFTYukiv2(colf[i], 1)
+    ax[i, 2].imshow(FFT_col(colf[i]), cmap=col_name)
+    ax[i, 3].imshow(np.abs(colif[i]), cmap=col_name)
+
 
 bfsci = fft2(B)
 gfsci = fft2(G)
@@ -209,28 +211,27 @@ bifsci = ifft2(bfsci)
 gifsci = ifft2(gfsci)
 rifsci = ifft2(rfsci)
 
-merge = np.dstack((bf, gf, rf))
+merge = np.dstack(colf)
 mergesci = np.dstack((bfsci, gfsci, rfsci))
 merge_col = FFT_col(merge)
 mergesci_col = FFT_col(mergesci)
 
-Rmask = ifftshift(fftshift(rf)*mask_high)
-Gmask = ifftshift(fftshift(gf)*mask_high)
-Bmask = ifftshift(fftshift(bf)*mask_high)
+Rmask = ifftshift(fftshift(colif[2])*mask_high)
+Gmask = ifftshift(fftshift(colif[1])*mask_high)
+Bmask = ifftshift(fftshift(colif[0])*mask_high)
 Rmaskif = ImgFFTYukiv2(Rmask, 1)
 Gmaskif = ImgFFTYukiv2(Gmask, 1)
 Bmaskif = ImgFFTYukiv2(Bmask, 1)
 merge_mask = np.dstack((Rmaskif, Gmaskif, Bmaskif))
 
-print(np.allclose(mergesci, merge))
-merge_if = np.dstack((rif, gif, bif))
-merge_ifsci = np.dstack((rifsci, gifsci, rifsci))
+merge_if = np.dstack((colif[2], colif[1], colif[0]))
+merge_ifsci = np.dstack((rifsci, gifsci, bifsci))
 print(merge.shape, merge.dtype,  sep='\n')
 
 # merge = rgb2gray(FFT_col(merge).astype(np.uint8))
-# imgfft2 = rgb2gray(imgfft2.astype(np.uint8))~
+# imgfft2 = rgb2gray(imgfft2.astype(np.uint8))
 ax[0, 4].imshow(merge_col.astype(np.uint8))
-ax[1, 4].imshow((mergesci_col).astype(np.uint8))
+ax[1, 4].imshow(mergesci_col.astype(np.uint8))
 ax[2, 4].imshow(np.abs(merge_if).astype(np.uint8))
 
 ax[3, 0].imshow((FFT_col(merge)*mask_highRGB).astype(np.uint8))
@@ -239,6 +240,11 @@ ax[3, 2].imshow(np.abs(Gmaskif).astype(np.uint8), cmap='Greens')
 ax[3, 3].imshow(np.abs(Bmaskif).astype(np.uint8), cmap='Blues')
 ax[3, 4].imshow(np.abs(merge_mask).astype(np.uint8))
 plt.show()
+'''
+out = np.abs(merge_if).astype(np.uint8)
+out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
+cv2.imwrite("ipass.png", out)
+'''
 
 '''
 # performance benchmark
