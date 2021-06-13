@@ -58,15 +58,16 @@ for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
 mergesci = np.dstack(scif)
 mergesci_col = FFT_col(mergesci)
 
-mask = getMask(IMG_SIZE, 100, 1)
+mask = getMask(IMG_SIZE, 100, 0)
 #+ getMask(IMG_SIZE, 80, 0)
-maskRGB = getMaskRGB(IMG_SIZE, 100, 1)
+maskRGB = getMaskRGB(IMG_SIZE, 100, 0)
 #+ getMaskRGB(IMG_SIZE, 80, 0)
 
+print(mask)
 
-Rmask = colf[2] * mask
-Gmask = colf[1] * mask
-Bmask = colf[0] * mask
+Rmask = ifftshift(fftshift(colf[0]) * mask)
+Gmask = ifftshift(fftshift(colf[1]) * mask)
+Bmask = ifftshift(fftshift(colf[2]) * mask)
 Rmaskif = ImgFFTYukiv2(Rmask, 1)
 Gmaskif = ImgFFTYukiv2(Gmask, 1)
 Bmaskif = ImgFFTYukiv2(Bmask, 1)
@@ -78,7 +79,7 @@ ax[2, 5].imshow(FFT_col(Bmask), cmap='Blues')
 merge_mask = np.dstack((Rmaskif, Gmaskif, Bmaskif))
 
 
-merge_ifsci = np.dstack((sciif[2], sciif[1], sciif[0]))
+merge_ifsci = np.dstack((sciif[0], sciif[1], sciif[2]))
 #print(merge.shape, merge.dtype,  sep='\n')
 
 ax[0, 4].imshow(merge_col.astype(np.uint8))
