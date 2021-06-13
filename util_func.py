@@ -20,6 +20,7 @@ def rgb2gray(rgb, IMG_SIZE: tuple = (256, 256)):
 
 
 def FFT_col(data):
+    '''This function is only used when applying color on the "frequency domain!"'''
     ESP = np.nextafter(np.float32(0), np.float32(1))
     return 20*np.log(ESP + np.abs(fftshift(data)))
 

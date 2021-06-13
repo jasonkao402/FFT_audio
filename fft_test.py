@@ -9,13 +9,15 @@ import cv2
 IMG_SIZE = (256, 256)
 
 fig, ax = plt.subplots(4, 6)
-SRC = 'wave.png'
-# lol no need to change this anymore
-#img = cv2.imread('./'+SRC)
-# if not img.any():
-img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_image/'+SRC)
+SRC = 'checker.png'
+#lol no need to change this anymore
+try:
+    img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/'+SRC)
+    img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
+except:
+    img = cv2.imread('./'+SRC)
+    img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 
-img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 _RGB = ['Reds', 'Greens', 'Blues']
 
 
@@ -29,10 +31,6 @@ ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 
 (R, G, B) = cv2.split(img)
 
-
-for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
-    ax[i, 1].imshow(col_ary, cmap=col_name)
-
 my_info = prepare_freq_info(IMG_SIZE, 'password')
 ixi = ImgFFTYukiv2(my_info, 1)
 
@@ -42,6 +40,7 @@ colif = [0, 0, 0]
 for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
     colf[i] = ImgFFTYukiv2(col_ary)
     colif[i] = ImgFFTYukiv2(colf[i], 1)
+    ax[i, 1].imshow(col_ary, cmap=col_name)
     ax[i, 2].imshow(FFT_col(colf[i]), cmap=col_name)
     ax[i, 3].imshow(np.abs(colif[i]), cmap=col_name)
 
@@ -65,12 +64,16 @@ maskRGB = getMaskRGB(IMG_SIZE, 100, 1)
 #+ getMaskRGB(IMG_SIZE, 80, 0)
 
 
-Rmask = ifftshift(fftshift(colif[2]) * mask)
-Gmask = ifftshift(fftshift(colif[1]) * mask)
-Bmask = ifftshift(fftshift(colif[0]) * mask)
+Rmask = colf[2] * mask
+Gmask = colf[1] * mask
+Bmask = colf[0] * mask
 Rmaskif = ImgFFTYukiv2(Rmask, 1)
 Gmaskif = ImgFFTYukiv2(Gmask, 1)
 Bmaskif = ImgFFTYukiv2(Bmask, 1)
+
+ax[0, 5].imshow(FFT_col(Rmask), cmap='Reds')
+ax[1, 5].imshow(FFT_col(Gmask), cmap='Greens')
+ax[2, 5].imshow(FFT_col(Bmask), cmap='Blues')
 
 merge_mask = np.dstack((Rmaskif, Gmaskif, Bmaskif))
 
