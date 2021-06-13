@@ -3,6 +3,7 @@ import numpy as np
 
 _PI = np.math.pi
 
+
 def DFT_slow(x, inverse: bool = False):
     """discrete Fourier Transform of the 1D array x"""
     tmp_PI = -_PI if inverse else _PI
@@ -92,44 +93,44 @@ def ImgFFTJason(data, inverse: bool = False):
     tmp = tmp.T
     return tmp
 
-def getMask(img_size:tuple, masksize, ishigh:bool):
-    img_center = (img_size[0]>>1, img_size[1]>>1)
+
+def getMask(img_size: tuple, masksize, ishigh: bool):
+    img_center = (img_size[0] >> 1, img_size[1] >> 1)
     not_high = not ishigh
     mask = np.zeros(img_size, dtype=np.uint8)
     mask.fill(not_high)
-    mask[img_center[0]-masksize : img_center[0]+masksize,
-             img_center[1]-masksize : img_center[1]+masksize] = ishigh
+    mask[img_center[0]-masksize: img_center[0]+masksize,
+         img_center[1]-masksize: img_center[1]+masksize] = ishigh
     return mask
 
 
-def getMaskRGB(img_size:tuple, masksize_low, ishigh:bool):
-    img_center = (img_size[0]>>1, img_size[1]>>1)
+def getMaskRGB(img_size: tuple, masksize_low, ishigh: bool):
+    img_center = (img_size[0] >> 1, img_size[1] >> 1)
     not_high = not ishigh
     maskRGB = np.zeros((img_size[0], img_size[1], 3), dtype=np.uint8)
     maskRGB.fill(not_high)
-    maskRGB[img_center[0]-masksize_low : img_center[0]+masksize_low,
-                img_center[1]-masksize_low : img_center[1]+masksize_low] = ishigh
+    maskRGB[img_center[0]-masksize_low: img_center[0]+masksize_low,
+            img_center[1]-masksize_low: img_center[1]+masksize_low] = ishigh
     return maskRGB
 
 
 def yuki_shift(data):
     row = data.shape[0]
     col = data.shape[1]
-    np.split(data, np.ceil(col/2), axis=1)
-    data = np.hstack(data[1], data[0])
-    np.split(data, np.ceil(row/2), axis=0)
-    data = np.vstack(data[1], data[0])
+    data = np.hstack((data[0:row, int(col/2):col],
+                     data[0:row, 0:int(col/2)]))
+    data = np.vstack((data[int(row/2):row], data[0:int(row/2)]))
     return data
 
 
 def yuki_ishift(data):
     row = data.shape[0]
     col = data.shape[1]
-    np.split(data, np.floor(col/2), axis=1)
-    data = np.hstack(data[1], data[0])
-    np.split(data, np.floor(row/2), axis=0)
-    data = np.vstack(data[1], data[0])
+    data = np.hstack((data[0:row, int(col/2):col],
+                     data[0:row, 0:int(col/2)]))
+    data = np.vstack((data[int(row/2):row], data[0:int(row/2)]))
     return data
+
 
 '''
 # 1D FFT, complete

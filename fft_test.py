@@ -10,13 +10,13 @@ IMG_SIZE = (256, 256)
 
 fig, ax = plt.subplots(4, 6)
 SRC = 'wave.png'
-#lol no need to change this anymore
-img = cv2.imread('./'+SRC)
-if not img.any():
-    img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/'+SRC)
+# lol no need to change this anymore
+#img = cv2.imread('./'+SRC)
+# if not img.any():
+img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_image/'+SRC)
 
 img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
-_BGR = ['Blues', 'Greens', 'Reds']
+_RGB = ['Reds', 'Greens', 'Blues']
 
 
 imgf = fft2(rgb2gray(img, IMG_SIZE))
@@ -30,29 +30,28 @@ ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 (R, G, B) = cv2.split(img)
 
 
-for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
+for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
     ax[i, 1].imshow(col_ary, cmap=col_name)
 
 my_info = prepare_freq_info(IMG_SIZE, 'password')
 ixi = ImgFFTYukiv2(my_info, 1)
 
-colf = [0,0,0]
-colif = [0,0,0]
+colf = [0, 0, 0]
+colif = [0, 0, 0]
 
-for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
-
+for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
     colf[i] = ImgFFTYukiv2(col_ary)
     colif[i] = ImgFFTYukiv2(colf[i], 1)
     ax[i, 2].imshow(FFT_col(colf[i]), cmap=col_name)
     ax[i, 3].imshow(np.abs(colif[i]), cmap=col_name)
 
-merge = np.dstack(colf)
+merge = np.dstack((colf[0], colf[1], colf[2]))
 merge_col = FFT_col(merge)
-merge_if = np.dstack((colif[2], colif[1], colif[0]))
+merge_if = np.dstack((colif[0], colif[1], colif[2]))
 
-scif = [0,0,0]
-sciif = [0,0,0]
-for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
+scif = [0, 0, 0]
+sciif = [0, 0, 0]
+for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
 
     scif[i] = fft2(col_ary)
     sciif[i] = ifft2(scif[i])
@@ -60,8 +59,11 @@ for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
 mergesci = np.dstack(scif)
 mergesci_col = FFT_col(mergesci)
 
-mask = getMask(IMG_SIZE, 100, 1) + getMask(IMG_SIZE, 80, 0)
-maskRGB = getMaskRGB(IMG_SIZE, 100, 1) + getMaskRGB(IMG_SIZE, 80, 0)
+mask = getMask(IMG_SIZE, 100, 1)
+#+ getMask(IMG_SIZE, 80, 0)
+maskRGB = getMaskRGB(IMG_SIZE, 100, 1)
+#+ getMaskRGB(IMG_SIZE, 80, 0)
+
 
 Rmask = ifftshift(fftshift(colif[2]) * mask)
 Gmask = ifftshift(fftshift(colif[1]) * mask)
