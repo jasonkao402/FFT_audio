@@ -102,7 +102,8 @@ def ImgFFTYuki(img):
 
 def ImgFFTYukiv2(img, inverse: bool = False):
     x = np.zeros((img.shape[0], img.shape[1]), dtype=complex)
-    if(inverse) : img = img.T
+    if(inverse):
+        img = img.T
 
     for i, row in enumerate(img):
         x[i] = FFT_iter(row, inverse)
@@ -110,7 +111,7 @@ def ImgFFTYukiv2(img, inverse: bool = False):
     x = x.T
     for i, col in enumerate(x):
         x[i] = FFT_iter(col, inverse)
-    
+
     return x if inverse else x.T
 
 
@@ -144,8 +145,9 @@ def FFT_col(data):
 fig, ax = plt.subplots(3, 5)
 
 # img = mpimg.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/squares.png')
-#img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/shape.png')
-img = cv2.imread('./checker.png')
+img = cv2.imread(
+    'C:/Users/yukimura/Documents/Workplace/FFT_audio/A6gibnM.jpg')
+# img = cv2.imread('./checker.png')
 # img = rgb2gray(img)
 img = cv2.resize(img, (256, 256))
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -175,27 +177,31 @@ for (i, col_ary), col_name in zip(enumerate([B, G, R]), _BGR):
 bf = ImgFFTYukiv2(B)
 gf = ImgFFTYukiv2(G)
 rf = ImgFFTYukiv2(R)
-bfsci = fft2(B)
-gfsci = fft2(G)
-rfsci = fft2(R)
-merge = np.dstack((bf, gf, rf))
-mergesci = np.dstack((bfsci, gfsci, rfsci))
-print(np.allclose(mergesci, merge))
-
 bif = ImgFFTYukiv2(bf, 1)
 gif = ImgFFTYukiv2(gf, 1)
 rif = ImgFFTYukiv2(rf, 1)
 
-merge_if = np.dstack((rif, gif, bif))
+bfsci = fft2(B)
+gfsci = fft2(G)
+rfsci = fft2(R)
+bifsci = ifft2(bfsci)
+gifsci = ifft2(gfsci)
+rifsci = ifft2(rfsci)
 
-imgfft2 = (fft2(img))
-print(merge.shape, imgfft2.shape, merge.dtype, imgfft2.dtype,  sep='\n')
+merge = np.dstack((bf, gf, rf))
+mergesci = np.dstack((bfsci, gfsci, rfsci))
+print(np.allclose(mergesci, merge))
+
+merge_if = np.dstack((rif, gif, bif))
+merge_ifsci = np.dstack((rifsci, gifsci, rifsci))
+print(merge.shape, merge.dtype,  sep='\n')
+
 merge_col = np.asarray(FFT_col(merge), dtype=float)
-imgfft2_col = np.asarray(FFT_col(imgfft2), dtype=float)
+mergesci_col = np.asarray(FFT_col(mergesci), dtype=float)
 # merge = rgb2gray(FFT_col(merge).astype(np.uint8))
 # imgfft2 = rgb2gray(imgfft2.astype(np.uint8))~
 ax[0, 4].imshow(merge_col.astype(np.uint8))
-ax[1, 4].imshow(imgfft2_col.astype(np.uint8))
+ax[1, 4].imshow((mergesci_col).astype(np.uint8))
 ax[2, 4].imshow(np.abs(merge_if).astype(np.uint8))
 
 plt.show()
