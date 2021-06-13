@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import time
-from fft_func import yuki_shift as fftshift, yuki_ishift as ifftshift
+from fft_func import yuki_shift, yuki_ishift
 #from scipy.fftpack import fftshift, ifftshift
 
 
@@ -21,8 +21,7 @@ def rgb2gray(rgb, IMG_SIZE: tuple = (256, 256)):
 
 def FFT_col(data):
     '''This function is only used when applying color on the "frequency domain!"'''
-    ESP = np.nextafter(np.float32(0), np.float32(1))
-    return 20*np.log(ESP + np.abs(fftshift(data)))
+    return 20*np.log(1 + np.abs(yuki_shift(data)))
 
 
 def prepare_freq_info(IMG_SIZE: tuple = (256, 256), msg: str = '', power: float = 99999):
