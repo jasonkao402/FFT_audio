@@ -8,7 +8,7 @@ import cv2
 
 IMG_SIZE = (256, 256)
 
-fig, ax = plt.subplots(4, 6)
+fig, ax = plt.subplots(4, 5)
 SRC = 'wave.png'
 # lol no need to change this anymore
 #img = cv2.imread('./'+SRC)
@@ -59,15 +59,16 @@ for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
 mergesci = np.dstack(scif)
 mergesci_col = FFT_col(mergesci)
 
-mask = getMask(IMG_SIZE, 100, 1)
+mask = getMask(IMG_SIZE, 100, 0)
 #+ getMask(IMG_SIZE, 80, 0)
-maskRGB = getMaskRGB(IMG_SIZE, 100, 1)
+maskRGB = getMaskRGB(IMG_SIZE, 100, 0)
 #+ getMaskRGB(IMG_SIZE, 80, 0)
 
+print(mask)
 
-Rmask = ifftshift(fftshift(colif[2]) * mask)
-Gmask = ifftshift(fftshift(colif[1]) * mask)
-Bmask = ifftshift(fftshift(colif[0]) * mask)
+Rmask = ifftshift(fftshift(colf[0]) * mask)
+Gmask = ifftshift(fftshift(colf[1]) * mask)
+Bmask = ifftshift(fftshift(colf[2]) * mask)
 Rmaskif = ImgFFTYukiv2(Rmask, 1)
 Gmaskif = ImgFFTYukiv2(Gmask, 1)
 Bmaskif = ImgFFTYukiv2(Bmask, 1)
@@ -75,7 +76,7 @@ Bmaskif = ImgFFTYukiv2(Bmask, 1)
 merge_mask = np.dstack((Rmaskif, Gmaskif, Bmaskif))
 
 
-merge_ifsci = np.dstack((sciif[2], sciif[1], sciif[0]))
+merge_ifsci = np.dstack((sciif[0], sciif[1], sciif[2]))
 #print(merge.shape, merge.dtype,  sep='\n')
 
 ax[0, 4].imshow(merge_col.astype(np.uint8))
