@@ -7,10 +7,13 @@ from scipy.fftpack import fft2, ifft2
 import cv2
 
 IMG_SIZE = (256, 256)
+MASK_SIZE = 100
+# LowPASS:1 HighPass:0
+MASK_MODE = 1
 
 fig, ax = plt.subplots(4, 6)
-SRC = 'checker.png'
-#lol no need to change this anymore
+SRC = 'SmallAme.jpg'
+# lol no need to change this anymore
 try:
     img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_audio/'+SRC)
     img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
@@ -23,7 +26,7 @@ _RGB = ['Reds', 'Greens', 'Blues']
 
 imgf = fft2(rgb2gray(img, IMG_SIZE))
 imgyuki = ImgFFTYukiv2(rgb2gray(img, IMG_SIZE))
-#grey scale fft
+# grey scale fft
 ax[0, 0].imshow(img)
 ax[1, 0].imshow(FFT_col(imgf), cmap='gray')
 ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
@@ -34,17 +37,17 @@ ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 my_info = prepare_freq_info(IMG_SIZE, 'password')
 ixi = ImgFFTYukiv2(my_info, 1)
 
-mask = getMask(IMG_SIZE, 20, 0)
+mask = getMask(IMG_SIZE, MASK_SIZE, MASK_MODE)
 #+ getMask(IMG_SIZE, 80, 0)
-maskRGB = getMaskRGB(IMG_SIZE, 20, 0)
+maskRGB = getMaskRGB(IMG_SIZE, MASK_SIZE, MASK_MODE)
 #+ getMaskRGB(IMG_SIZE, 80, 0)
-#print(mask)
+# print(mask)
 
 colf = [0, 0, 0]
 colif = [0, 0, 0]
 
-masked_colf=[0, 0, 0]
-masked_colif=[0, 0, 0]
+masked_colf = [0, 0, 0]
+masked_colif = [0, 0, 0]
 
 for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
 
@@ -84,7 +87,7 @@ merge_ifsci = np.dstack(sciif)
 ax[3, 0].imshow((FFT_col(merge) * maskRGB).astype(np.uint8))
 ax[3, 1].imshow(merge_col.astype(np.uint8))
 ax[3, 2].imshow(mergesci_col.astype(np.uint8))
-#result
+# result
 ax[3, 3].imshow(np.abs(merge_if).astype(np.uint8))
 ax[3, 4].imshow(FFT_col(merge_maskf).astype(np.uint8))
 ax[3, 5].imshow(np.abs(merge_mask_if).astype(np.uint8))
