@@ -1,5 +1,6 @@
 import numpy as np
 
+#constant
 _PI = np.math.pi
 
 
@@ -20,9 +21,9 @@ def FFT_recu(x, inverse: bool = False):
 
     if (N & (N - 1)):
         raise ValueError("size of x must be a power of 2")
-    # this cutoff should be optimized
+    # This cutoff should be optimized
     # as recursion on small N does not help much
-    # rather do in in one N^2 call.
+    # rather do it in one N^2 call.
     elif N <= 16:
         return DFT_slow(x, inverse)
 
@@ -43,9 +44,9 @@ def FFT_iter(x, inverse: bool = False):
 
     if (N & (N - 1)):
         raise ValueError("size of x must be a power of 2")
-    # this cutoff should be optimized
+    # This cutoff should be optimized
     # as recursion on small N does not help much
-    # rather do in in one N^2 call.
+    # rather do it in one N^2 call.
     N_min = min(N, 16)
 
     n = np.arange(N_min)
@@ -59,6 +60,34 @@ def FFT_iter(x, inverse: bool = False):
         X_odd = X[:, X.shape[1] >> 1:]
         factor = np.exp(-1j * tmp_PI *
                         np.arange(X.shape[0]) / X.shape[0])[:, None]
+        X = np.vstack([X_even + factor * X_odd, X_even - factor * X_odd])
+    return X.ravel()/N if inverse else X.ravel()
+
+
+def FFT_iter_v2(x, inverse: bool = False):
+    """Iter. version of the Cooley-Tukey FFT"""
+    x = np.asarray(x, dtype=complex)
+    tmp_PI = -_PI if inverse else _PI
+    N = x.shape[0]
+
+    if (N & (N - 1)):
+        raise ValueError("size of x must be a power of 2")
+    # this cutoff should be optimized
+    # as recursion on small N does not help much
+    # rather do it in one N^2 call.
+    N_min = min(N, 16)
+    tmp_2iPI = -2j * tmp_PI / N_min
+
+    n = np.arange(N_min)
+    k = n[:, None]
+    M = np.exp(tmp_2iPI * n * k)
+    X = np.dot(M, x.reshape((N_min, -1)))
+
+    # build-up each level of the recursive calculation all at once
+    while X.shape[0] < N:
+        X_even = X[:, :X.shape[1] >> 1]
+        X_odd = X[:, X.shape[1] >> 1:]
+        factor = np.exp(-1j * tmp_PI * np.arange(X.shape[0]) / X.shape[0])[:, None]
         X = np.vstack([X_even + factor * X_odd, X_even - factor * X_odd])
     return X.ravel()/N if inverse else X.ravel()
 
@@ -84,6 +113,17 @@ def ImgFFTYukiv2(img, inverse: bool = False):
 
     return x.T
 
+def ImgFFTYukiv2(img, inverse: bool = False):
+    x = np.zeros((img.shape[0], img.shape[1]), dtype=complex)
+
+    for i, row in enumerate(img):
+        x[i] = FFT_iter_v2(row, inverse)
+
+    x = x.T
+    for i, col in enumerate(x):
+        x[i] = FFT_iter_v2(col, inverse)
+
+    return x.T
 
 def ImgFFTJason(data, inverse: bool = False):
     tmp = np.array(list(map(lambda row: FFT_iter(row), data)), dtype=complex)
@@ -91,6 +131,11 @@ def ImgFFTJason(data, inverse: bool = False):
     tmp = np.array(list(map(lambda col: FFT_iter(col), tmp)), dtype=complex)
     tmp = tmp.T
     return tmp
+
+
+def FFT_col(data):
+    '''This function is only used when applying color on the "frequency domain!"'''
+    return 20*np.log(1 + np.abs(yuki_shift(data)))
 
 
 def yuki_shift(data):
@@ -110,41 +155,3 @@ def yuki_ishift(data):
     data = np.vstack((data[int(row/2):row], data[0:int(row/2)]))
     return data
 
-
-'''
-# 1D FFT, complete
-
-# Number of sample points
-N = 1024
-# sample spacing
-T = 1 / N
-
-# x = np.linspace(0.0, N*T, N)
-# y = 0.75*np.sin(5 * 2.0*_PI*x) + 0.5*np.sin(250 * 2.0*_PI*x) + 0.25*np.sin(400 * 2.0*_PI*x)
-xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
-yf = FFT_iter(y, False)
-rec = FFT_iter(yf, True)
-
-# To Compare
-newyf=fft(y)
-newrec=ifft(newyf)
-
-print(np.allclose(yf, newyf))
-print(np.allclose(rec, newrec))
-
-fig, ax = plt.subplots(5)
-
-ax[0].plot(x, y)
-ax[1].plot(xf, np.abs(newyf[:N//2]))
-ax[2].plot(xf, np.abs(yf[:N//2]))
-ax[3].plot(x, rec.real)
-ax[4].plot(x, newrec.real)
-plt.show()
-
-# performance benchmark
-if N < 2048:
-    timeit(lambda: DFT_slow(y), 'DFT_slow', 5)
-else: print("DFT_slow\n>avg    >1000 ms per loop")
-timeit(lambda: FFT_recu(y), 'FFT_recu', 10)
-timeit(lambda: FFT_iter(y), 'FFT_iter', 10)
-'''
