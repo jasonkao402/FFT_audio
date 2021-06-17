@@ -31,8 +31,6 @@ imgf = fft2(rgb2gray(img, IMG_SIZE))
 imgyuki = ImgFFTYukiv2(rgb2gray(img, IMG_SIZE))
 # grey scale fft
 ax[0, 0].imshow(img)
-ax[1, 0].imshow(FFT_col(imgf), cmap='gray')
-ax[2, 0].imshow(FFT_col(imgyuki), cmap='gray')
 
 
 (R, G, B) = cv2.split(img)
@@ -68,7 +66,7 @@ for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
     ax[i, 5].imshow(np.abs(masked_colif[i]), cmap=col_name)
 
 merge = np.dstack(colf)
-merge_col = FFT_col(merge)
+#merge_col = FFT_col(merge)
 merge_if = np.dstack(colif)
 
 merge_maskf = np.dstack(masked_colf)
@@ -88,10 +86,13 @@ mergesci = np.dstack(scif)
 merge_ifsci = np.dstack(sciif)
 #print(merge.shape, merge.dtype,  sep='\n')
 
+ax[1, 0].imshow(FFT_col(imgf), cmap='gray')
+ax[2, 0].imshow(FFT_col(mergesci).astype(np.uint8))
 ax[3, 0].imshow(np.abs(merge_ifsci).astype(np.uint8))
-ax[3, 1].imshow(FFT_col(mergesci).astype(np.uint8))
-ax[3, 2].imshow(FFT_col(merge_maskf).astype(np.uint8))
-# result
+
+ax[3, 1].imshow(FFT_col(imgyuki), cmap='gray')
+ax[3, 2].imshow(FFT_col(merge).astype(np.uint8))
+# mask result
 ax[3, 3].imshow(np.abs(merge_if).astype(np.uint8))
 ax[3, 4].imshow(FFT_col(merge_maskf).astype(np.uint8))
 ax[3, 5].imshow(np.abs(merge_mask_if).astype(np.uint8))
