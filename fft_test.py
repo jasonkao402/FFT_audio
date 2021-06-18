@@ -10,28 +10,27 @@ from scipy.fftpack import fft2, ifft2
 IMG_SIZE = (256, 256)
 MASK_SIZE = 8
 # LowPASS:1 HighPass:0 
-MASK_MODE = 0
+MASK_MODE = 1
 # square: 's', circle: 'c', NoFilter: ''
 MASK_SHAPE = 'c'
 
 fig, ax = plt.subplots(4, 6)
-SRC = 'images/checker.png'
+SRC = './images/checker.png'
+RESULT = './result/'
 # lol no need to change this anymore
 try:
     img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_image/'+SRC)
     img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 except:
-    img = cv2.imread('./'+SRC)
+    img = cv2.imread(SRC)
     img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 
 _RGB = ['Reds', 'Greens', 'Blues']
 
-
-imgf = fft2(rgb2gray(img, IMG_SIZE))
-imgyuki = ImgFFTYukiv2(rgb2gray(img, IMG_SIZE))
 # grey scale fft
+img_sci_bw = fft2(rgb2gray(img, IMG_SIZE))
+imgyuki_bw = ImgFFTYukiv2(rgb2gray(img, IMG_SIZE))
 ax[0, 0].imshow(img)
-
 
 (R, G, B) = cv2.split(img)
 
@@ -59,11 +58,18 @@ for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
     colif[i] = ImgFFTYukiv2(colf[i], 1)
     masked_colif[i] = ImgFFTYukiv2(masked_colf[i], 1)
 
-    ax[i, 1].imshow(col_ary, cmap=col_name)
-    ax[i, 2].imshow(FFT_col(colf[i]), cmap=col_name, vmin = 0, vmax = 200)
-    ax[i, 3].imshow(np.abs(colif[i]), cmap=col_name)
-    ax[i, 4].imshow(FFT_col(masked_colf[i]), cmap=col_name, vmin = 0, vmax = 200)
-    ax[i, 5].imshow(np.abs(masked_colif[i]), cmap=col_name)
+    cache = [col_ary, FFT_col(colf[i]), np.abs(colif[i]), FFT_col(masked_colf[i]), np.abs(masked_colif[i])]
+    ax[i, 1].imshow(cache[0], cmap=col_name)
+    ax[i, 2].imshow(cache[1], cmap=col_name, vmin = 0, vmax = 225)
+    ax[i, 3].imshow(cache[2], cmap=col_name)
+    ax[i, 4].imshow(cache[3], cmap=col_name, vmin = 0, vmax = 225)
+    ax[i, 5].imshow(cache[4], cmap=col_name)
+
+    plt.imsave(f'{RESULT}color_{col_name}.jpg', cache[0], cmap = col_name)
+    plt.imsave(f'{RESULT}FFT_{col_name}.jpg', cache[1], cmap=col_name, vmin = 0, vmax = 225)
+    plt.imsave(f'{RESULT}mask_FFT_{col_name}.jpg', cache[3], cmap=col_name, vmin = 0, vmax = 225)
+    plt.imsave(f'{RESULT}mask_IFFT_{col_name}.jpg', cache[4], cmap=col_name)
+
 
 merge = np.dstack(colf)
 #merge_col = FFT_col(merge)
@@ -81,22 +87,28 @@ for (i, col_ary), col_name in zip(enumerate([R, G, B]), _RGB):
     scif[i] = fft2(col_ary)
     sciif[i] = ifft2(scif[i])
 
+
 mergesci = np.dstack(scif)
 #mergesci_col = FFT_col(mergesci)
 merge_ifsci = np.dstack(sciif)
 #print(merge.shape, merge.dtype,  sep='\n')
 
-ax[1, 0].imshow(FFT_col(imgf), cmap='gray')
+ax[1, 0].imshow(FFT_col(img_sci_bw), cmap='gray')
 ax[2, 0].imshow(FFT_col(mergesci).astype(np.uint8))
 ax[3, 0].imshow(np.abs(merge_ifsci).astype(np.uint8))
 
-ax[3, 1].imshow(FFT_col(imgyuki), cmap='gray')
+ax[3, 1].imshow(FFT_col(imgyuki_bw), cmap='gray')
 ax[3, 2].imshow(FFT_col(merge).astype(np.uint8))
 # mask result
 ax[3, 3].imshow(np.abs(merge_if).astype(np.uint8))
 ax[3, 4].imshow(FFT_col(merge_maskf).astype(np.uint8))
 ax[3, 5].imshow(np.abs(merge_mask_if).astype(np.uint8))
 plt.show()
+
+plt.imsave(f'{RESULT}FFT_grey.jpg', FFT_col(imgyuki_bw), cmap='gray')
+plt.imsave(f'{RESULT}FFT_merge.jpg', FFT_col(merge).astype(np.uint8))
+plt.imsave(f'{RESULT}mask_FFT.jpg', FFT_col(merge_maskf).astype(np.uint8))
+plt.imsave(f'{RESULT}mask_IFFT.jpg', np.abs(merge_mask_if).astype(np.uint8))
 '''
 out = np.abs(merge_if).astype(np.uint8)
 out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
