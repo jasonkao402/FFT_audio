@@ -114,4 +114,4 @@ dmypy.json
 .pyre/
 
 #generated results
-result/
+result/*
