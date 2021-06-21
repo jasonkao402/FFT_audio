@@ -113,7 +113,7 @@ def ImgFFTYukiv2(img, inverse: bool = False):
 
     return x.T
 
-def ImgFFTYukiv2(img, inverse: bool = False):
+def ImgFFTYukiv3(img, inverse: bool = False):
     x = np.zeros((img.shape[0], img.shape[1]), dtype=complex)
 
     for i, row in enumerate(img):
