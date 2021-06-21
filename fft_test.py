@@ -1,31 +1,35 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 # our library
 from fft_func import ImgFFTYukiv2, yuki_shift, yuki_ishift, FFT_col
 from util_func import *
 # check answer
 from scipy.fftpack import fft2, ifft2
 
+# only power of 2
+# higher means better resolution, at cost of slower
 IMG_SIZE = (256, 256)
-MASK_SIZE = 8
+# should not go over half the img size
+MASK_SIZE = 6
 # LowPASS:1 HighPass:0 
 MASK_MODE = 1
 # square: 's', circle: 'c', NoFilter: ''
 MASK_SHAPE = 'c'
 
-fig, ax = plt.subplots(4, 6)
+_RGB = ['Reds', 'Greens', 'Blues']
+
+# lol no need to change this anymore
+absFilePath = os.path.abspath(__file__)
+os.chdir( os.path.dirname(absFilePath))
 SRC = './images/checker.png'
 RESULT = './result/'
-# lol no need to change this anymore
-try:
-    img = cv2.imread('C:/Users/yukimura/Documents/Workplace/FFT_image/'+SRC)
-    img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
-except:
-    img = cv2.imread(SRC)
-    img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
 
-_RGB = ['Reds', 'Greens', 'Blues']
+# read start, do not change under this line
+img = cv2.imread(SRC)
+img = cv2.cvtColor(cv2.resize(img, IMG_SIZE), cv2.COLOR_BGR2RGB)
+fig, ax = plt.subplots(4, 6)
 
 # grey scale fft
 img_sci_bw = fft2(rgb2gray(img, IMG_SIZE))
@@ -34,14 +38,12 @@ ax[0, 0].imshow(img)
 
 (R, G, B) = cv2.split(img)
 
-#not used
+# not used
 #my_info = prepare_freq_info(IMG_SIZE, 'password')
 #ixi = ImgFFTYukiv2(my_info, 1)
 
 mask = getMask(IMG_SIZE, MASK_SIZE, MASK_MODE, MASK_SHAPE)
-#+ getMask(IMG_SIZE, 80, 0)
 maskRGB = getMaskRGB(IMG_SIZE, MASK_SIZE, MASK_MODE, MASK_SHAPE)
-#+ getMaskRGB(IMG_SIZE, 80, 0)
 # print(mask)
 
 colf = [0, 0, 0]
