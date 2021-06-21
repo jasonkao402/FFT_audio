@@ -4,7 +4,7 @@ from fft_func import *
 
 # 1D FFT, complete
 if __name__ == '__main__':
-    #constant
+    # constant
     _PI = np.math.pi
     # Number of sample points
     N = 2048*4
@@ -38,10 +38,11 @@ if __name__ == '__main__':
     timeit(lambda: FFT_iter(yf, 1), 'iFFT_iter_v1', 100)
     timeit(lambda: FFT_iter_v2(yf, 1), 'iFFT_iter_v2', 100)
     '''
+    # 2D performance benchmark
     img = np.random.rand(256, 256)
     imgfd = ImgFFTYukiv2(img)
     imgsd = ImgFFTYukiv2(imgfd, 1)
-    # 2D performance benchmark
+    
     #timeit(lambda: ImgFFTJason(img), 'ImgFFTJason', 32)
     timeit(lambda: ImgFFTYuki(img), 'ImgFFTYuki', 256)
     timeit(lambda: ImgFFTYukiv2(img), 'ImgFFTYukiv2', 256)

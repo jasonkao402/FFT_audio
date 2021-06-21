@@ -36,14 +36,14 @@ def getMask(img_size: tuple, masksize, ishigh: bool, m_shape: str):
     not_high = not ishigh
     mask = np.ones(img_size, dtype=np.uint8)
 
-    #circle
+    # circle
     if m_shape == 'c':
         Y, X = np.ogrid[:img_size[0], :img_size[1]]
         dist_from_center = (X - img_center[0])**2 + (Y-img_center[1])**2
         sq_r = masksize**2
         mask = dist_from_center <= sq_r if ishigh else dist_from_center > sq_r
         return mask
-    #square
+    # square
     elif m_shape == 's':
         mask.fill(not_high)
         mask[img_center[0]-masksize: img_center[0]+masksize,
@@ -56,14 +56,14 @@ def getMaskRGB(img_size: tuple, masksize, ishigh: bool, m_shape: str):
     img_center = (img_size[0] >> 1, img_size[1] >> 1)
     not_high = not ishigh
     maskRGB = np.ones((img_size[0], img_size[1], 3), dtype=np.uint8)
-    #circle
+    # circle
     if m_shape == 'c':
         Y, X = np.ogrid[:img_size[0], :img_size[1]]
         dist_from_center = (X - img_center[0])**2 + (Y-img_center[1])**2
         sq_r = masksize**2
         maskRGB = dist_from_center <= sq_r if ishigh else dist_from_center > sq_r
         return np.dstack((maskRGB, maskRGB, maskRGB)) 
-    #square
+    # square
     elif m_shape == 's':
         maskRGB.fill(not_high)
         maskRGB[img_center[0]-masksize: img_center[0]+masksize,

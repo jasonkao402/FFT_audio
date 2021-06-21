@@ -8,12 +8,12 @@ from util_func import *
 # check answer
 from scipy.fftpack import fft2, ifft2
 
-# only power of 2
-# higher means better resolution, at cost of slower
+# only power of 2, over 1024 is not recommend
+# higher means better resolution, at cost of execution time
 IMG_SIZE = (256, 256)
 # should not go over half the img size
 MASK_SIZE = 6
-# LowPASS:1 HighPass:0 
+# LowPass:1 HighPass:0 
 MASK_MODE = 1
 # square: 's', circle: 'c', NoFilter: ''
 MASK_SHAPE = 'c'
@@ -23,7 +23,7 @@ _RGB = ['Reds', 'Greens', 'Blues']
 # lol no need to change this anymore
 absFilePath = os.path.abspath(__file__)
 os.chdir( os.path.dirname(absFilePath))
-SRC = './images/checker.png'
+SRC = './images/ipass.png'
 RESULT = './result/'
 
 # read start, do not change under this line
@@ -101,17 +101,18 @@ ax[3, 0].imshow(np.abs(merge_ifsci).astype(np.uint8))
 
 ax[3, 1].imshow(FFT_col(imgyuki_bw), cmap='gray')
 ax[3, 2].imshow(FFT_col(merge).astype(np.uint8))
-# mask result
+# mask results
 ax[3, 3].imshow(np.abs(merge_if).astype(np.uint8))
 ax[3, 4].imshow(FFT_col(merge_maskf).astype(np.uint8))
 ax[3, 5].imshow(np.abs(merge_mask_if).astype(np.uint8))
 plt.show()
-
+# save to result folder
 plt.imsave(f'{RESULT}FFT_grey.jpg', FFT_col(imgyuki_bw), cmap='gray')
 plt.imsave(f'{RESULT}FFT_merge.jpg', FFT_col(merge).astype(np.uint8))
 plt.imsave(f'{RESULT}mask_FFT.jpg', FFT_col(merge_maskf).astype(np.uint8))
 plt.imsave(f'{RESULT}mask_IFFT.jpg', np.abs(merge_mask_if).astype(np.uint8))
 '''
+# not used
 out = np.abs(merge_if).astype(np.uint8)
 out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
 cv2.imwrite("ipass.png", out)

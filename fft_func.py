@@ -1,6 +1,6 @@
 import numpy as np
 
-#constant
+# constant
 _PI = np.math.pi
 
 
